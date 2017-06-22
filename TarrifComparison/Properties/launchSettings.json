@@ -2,7 +2,7 @@
   "profiles": {
     "TarrifComparison": {
       "commandName": "Project",
-      "commandLineArgs": "cost 753 506"
+      "commandLineArgs": "cost 0 900"
     }
   }
 }

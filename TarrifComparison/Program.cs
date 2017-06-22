@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Linq;
 
+//My solution for "Tarrif Comparison" interview test
+//The instructions state to program in a functional manner, which I have attempted
+
 namespace TarrifComparison
 {
     class Program
@@ -26,7 +29,8 @@ namespace TarrifComparison
 
         }
 
-        static string ParseArgs(string[] args)
+        //pure function as it either returns "cost", "usage" or empty string
+        static string ParseArgs(string[] args) 
         {
             return args.FirstOrDefault(x => 
                 x == "cost" ||
@@ -43,16 +47,15 @@ namespace TarrifComparison
             Environment.Exit(0);
         }
 
-        static Func<string[],string[]> CommandLogic(string command)
+        //Higher-order function to return the appropriate function for the given command
+        static Func<string[],string[]> CommandLogic(string command) 
         {
             switch (command.ToLower())
             {
                 case "cost":
-                    Func<string[],string[]> costLogic = CostLogic.CalculateCost;
-                    return costLogic;
+                    return CostLogic.CalculateCost;
                 case "usage":
-                    Func<string[], string[]> usageLogic = UsageLogic.CalculateUsage;
-                    return usageLogic;
+                    return UsageLogic.CalculateUsage;
                 default:
                     return null;
 

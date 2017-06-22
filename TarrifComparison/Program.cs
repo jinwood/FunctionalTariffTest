@@ -48,7 +48,7 @@ namespace TarrifComparison
             Environment.Exit(0);
         }
 
-        //Higher-order function to return the appropriate function for the given command
+        //Higher-order function, returns the appropriate function for the given command
         static Func<string[],string[]> CommandLogic(string command) 
         {
             switch (command.ToLower())

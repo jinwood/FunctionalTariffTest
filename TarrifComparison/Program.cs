@@ -7,16 +7,23 @@ namespace TarrifComparison
     {
         static void Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             var command = ParseArgs(args);
             if (string.IsNullOrEmpty(command)) Exit("Invalid command");
 
             var logicDelegate = CommandLogic(command, args);
             var result = logicDelegate.Invoke(args);
+
+            if (result == null) Exit("Error parsing user input");
+
             foreach (var item in result)
             {
                 Console.WriteLine(item);
             }
+
             Console.ReadLine();
+            Environment.Exit(0);
 
         }
 

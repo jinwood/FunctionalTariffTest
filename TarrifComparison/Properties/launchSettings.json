@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TarrifComparison": {
+      "commandName": "Project",
+      "commandLineArgs": "cost 1 2"
+    }
+  }
+}

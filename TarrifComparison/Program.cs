@@ -12,8 +12,7 @@ namespace TarrifComparison
             var command = ParseArgs(args);
             if (string.IsNullOrEmpty(command)) Exit("Invalid command");
 
-            var logicDelegate = CommandLogic(command, args);
-            var result = logicDelegate.Invoke(args);
+            var result = CommandLogic(command).Invoke(args);
 
             if (result == null) Exit("Error parsing user input");
 
@@ -44,7 +43,7 @@ namespace TarrifComparison
             Environment.Exit(0);
         }
 
-        static Func<string[],string[]> CommandLogic(string command, string[] args)
+        static Func<string[],string[]> CommandLogic(string command)
         {
             switch (command.ToLower())
             {

@@ -3,6 +3,7 @@ using System.Linq;
 
 //My solution for "Tarrif Comparison" interview test
 //The instructions state to program in a functional manner, which I have attempted
+//There are examples of pure and high level functions, no variable mutation, and use of lambda expressions using LINQ
 
 namespace TarrifComparison
 {

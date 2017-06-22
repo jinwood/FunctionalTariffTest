@@ -16,6 +16,7 @@ namespace TarrifComparison
             {
                 Console.WriteLine(item);
             }
+            Console.ReadLine();
 
         }
 

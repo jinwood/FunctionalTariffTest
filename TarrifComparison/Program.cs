@@ -5,6 +5,8 @@ using System.Linq;
 //My solution for "Tarrif Comparison" interview test
 //The instructions state to program in a functional manner, which I have attempted
 //There are examples of pure and high level functions, no variable mutation, and use of lambda expressions using LINQ
+//C# is an imperitive language with some functional programming features, as such, some of the program is written 
+//with OO in mind, although I've tried to keep that minimal
 
 namespace TarrifComparison
 {

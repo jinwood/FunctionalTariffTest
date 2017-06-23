@@ -6,7 +6,7 @@ namespace TarrifComparison
 {
     public static class UsageLogic
     {
-        //please see CostLogic.cs for comments (functions)
+        //please see CostLogic.cs for comments
         public static void CalculateUsage(string[] args, List<TarrifEntry> tarrifs, Action<string> output)
         {
             var tarrifName = args[1];

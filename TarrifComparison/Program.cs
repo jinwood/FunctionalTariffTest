@@ -16,36 +16,56 @@ namespace TarrifComparison
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
             //the only non-pure function, does not affect any other functions due to its location
-            var tariffs = Data.Load(); 
+            var tariffs = Data.Load();
             //get commoand logic based off args, invoke, passing a function to handle output
-            GetCommandLogic(args).Invoke(args, tariffs, Output);
+            var command = GetCommand(args);
+            command(tariffs, Console.WriteLine);
         }
         
         //higher order function, calls another function depending on the first argument passed
-        static Action<string[], List<TarrifEntry>, Action<string>> GetCommandLogic(string[] args) 
-        {
-            return CommandLogic(args.FirstOrDefault(x => 
-                x == "cost" ||
-                x == "usage"));
-        }
 
         //Higher-order function, returns the appropriate function for the given command
-        static Action<string[], List<TarrifEntry>, Action<string>> CommandLogic(string command) 
+        static Action<List<TarrifEntry>, Action<string>> GetCommand(string[] args) 
         {
-            switch (command.ToLower())
+            Func<decimal, string> formatCost = x => x.ToString("£#.##");
+
+            string command = args[0].ToLower();
+            switch (command)
             {
                 case "cost":
-                    return CostLogic.CalculateCost;
+                    var powerUsage = decimal.Parse(args[1]);
+                    var gasUsage = decimal.Parse(args[2]);
+
+                    Func<TarrifEntry, EnergyRate> calc = (tarrif) => new EnergyRate
+                    {
+                        Name = tarrif.tariff,
+                        Cost = tarrif.standing_charge * 12m + tarrif.rates.gas * gasUsage * (1m+Constants.VatPercent)
+                    };
+
+                    //use a combination of LINQ expressions, and the lambda expressions above to chain function calls
+                    //together to generate our output strings. Iterate over them using the ForEach extension and output to our output function
+                    return (tarrifs, output) => tarrifs.Select(calc)
+                                                       .OrderBy(x => x.Cost)
+                                                       .ToList()
+                                                       .ForEach(x => output($"{x.Name}: {formatCost(x.Cost)}"));
                 case "usage":
-                    return UsageLogic.CalculateUsage;
+                    var tarrifName = args[1];
+                    var fuelType = args[2];
+                    var targetMonthlySpend = decimal.Parse(args[3]);
+
+                    Func<TarrifEntry, decimal> calculateSpend =
+                        (tarrif) => (targetMonthlySpend / (fuelType == "gas" ? tarrif.rates.gas : tarrif.rates.power)
+                                    + tarrif.standing_charge) * 12 * (1m+Constants.VatPercent);
+                    
+                    return (tarrifs, output) => 
+                                tarrifs.Where(x =>
+                                    x.tariff == tarrifName)
+                                        .Select(y => $"ANNUAL_{fuelType.ToUpper()}_USAGE {formatCost(calculateSpend(y))} KW/h")
+                                        .FirstOrDefault()
+                                        .ToString();
                 default:
                     return null;
             }
-        }
-
-        static void Output(string output)
-        {
-            Console.WriteLine(output);
         }
     }
 }

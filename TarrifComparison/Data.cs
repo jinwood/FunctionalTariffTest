@@ -9,7 +9,7 @@ namespace TarrifComparison
         public static List<TarrifEntry> Load()
         {
             //read the json file and deserialize into the type defined below
-            using (StreamReader reader = new StreamReader(File.OpenText("prices.json").BaseStream))
+            using (StreamReader reader = File.OpenText("prices.json"))
             {
                 return ((List<TarrifEntry>)new JsonSerializer()
                     .Deserialize(reader, typeof(List<TarrifEntry>)));

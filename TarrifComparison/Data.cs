@@ -8,6 +8,7 @@ namespace TarrifComparison
     {
         public static List<TarrifEntry> Load()
         {
+            //read the json file and deserialize into the type defined below
             using (StreamReader reader = new StreamReader(File.OpenText("prices.json").BaseStream))
             {
                 return ((List<TarrifEntry>)new JsonSerializer()
@@ -16,13 +17,15 @@ namespace TarrifComparison
         }
     }
 
-    public struct Rates //immutable
+    //used structs to enforce the immutable nature
+    //of this application
+    public struct Rates
     {
         public decimal power { get; set; }
         public decimal gas { get; set; }
     }
 
-    public struct TarrifEntry //immutable
+    public struct TarrifEntry 
     {
         public string tariff { get; set; }
         public Rates rates { get; set; }

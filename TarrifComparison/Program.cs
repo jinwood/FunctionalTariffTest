@@ -39,8 +39,16 @@ namespace TarrifComparison
                     //In this instance, I think it's worth throwing an exception over any other alternative
                     //ie C# has a TryParse method which returns either a value if successful, or 0 if not
                     //I feel falling back to 0 would potentially muddy results.
-                    var powerUsage = decimal.Parse(args[1]);
-                    var gasUsage = decimal.Parse(args[2]);
+                    //This kind of input failiure could be caught before getting this far in the program
+                    try
+                    {
+                        var powerUsage = decimal.Parse(args[1]);
+                        var gasUsage = decimal.Parse(args[2]);
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
 
                     //lambda function to handle cost calculation, stored temporarily in an EnergyRate type
                     Func<TarrifEntry, EnergyRate> CalculateEnergyRate = (tarrif) => new EnergyRate
@@ -58,7 +66,14 @@ namespace TarrifComparison
                 case "usage":
                     var tarrifName = args[1];
                     var fuelType = args[2];
-                    var targetMonthlySpend = decimal.Parse(args[3]);
+                    try
+                    {
+                        var targetMonthlySpend = decimal.Parse(args[3]);
+                    }
+                    catch (Exception)
+                    {
+                        return null;
+                    }
 
                     Func<TarrifEntry, decimal> CalculateAnnualSpend =
                         (tarrif) => (targetMonthlySpend / (fuelType == "gas" ? tarrif.rates.gas : tarrif.rates.power)

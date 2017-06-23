@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 //My solution for "Tarrif Comparison" interview test
@@ -12,30 +13,36 @@ namespace TarrifComparison
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-
-            var command = ParseArgs(args);
-            if (string.IsNullOrEmpty(command)) Exit("Invalid command");
-
-            var result = CommandLogic(command).Invoke(args);
-
-            if (result == null) Exit("Error parsing user input");
-
-            foreach (var item in result)
-            {
-                Console.WriteLine(item);
-            }
-
-            Console.ReadLine();
-            Environment.Exit(0);
-
+            var tariffs = Data.Load();
+            GetCommandLogic(args).Invoke(args, tariffs, Output);
         }
 
         //pure function as it either returns "cost", "usage" or empty string
-        static string ParseArgs(string[] args) 
+        static Action<string[], List<TarrifEntry>, Action<List<string>>> GetCommandLogic(string[] args) 
         {
-            return args.FirstOrDefault(x => 
+            return CommandLogic(args.FirstOrDefault(x => 
                 x == "cost" ||
-                x == "usage");
+                x == "usage"));
+        }
+
+        //Higher-order function, returns the appropriate function for the given command
+        static Action<string[], List<TarrifEntry>, Action<List<string>>> CommandLogic(string command) 
+        {
+            switch (command.ToLower())
+            {
+                case "cost":
+                    return CostLogic.CalculateCost;
+                case "usage":
+                    return UsageLogic.CalculateUsage;
+                default:
+                    return null;
+            }
+        }
+
+        static void Output(List<string> output)
+        {
+            output.ForEach(x => Console.WriteLine(x));
+            Environment.Exit(0);
         }
 
         static void Exit(string message)
@@ -46,21 +53,6 @@ namespace TarrifComparison
                     : $"Exiting application - {message}");
 
             Environment.Exit(0);
-        }
-
-        //Higher-order function, returns the appropriate function for the given command
-        static Func<string[],string[]> CommandLogic(string command) 
-        {
-            switch (command.ToLower())
-            {
-                case "cost":
-                    return CostLogic.CalculateCost;
-                case "usage":
-                    return UsageLogic.CalculateUsage;
-                default:
-                    return null;
-
-            }
         }
     }
 }

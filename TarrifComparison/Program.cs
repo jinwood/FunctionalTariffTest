@@ -40,10 +40,12 @@ namespace TarrifComparison
                     //ie C# has a TryParse method which returns either a value if successful, or 0 if not
                     //I feel falling back to 0 would potentially muddy results.
                     //This kind of input failiure could be caught before getting this far in the program
+                    decimal gasUsage;
+                    decimal powerUsage;
                     try
                     {
-                        var powerUsage = decimal.Parse(args[1]);
-                        var gasUsage = decimal.Parse(args[2]);
+                        powerUsage = decimal.Parse(args[1]);
+                        gasUsage = decimal.Parse(args[2]);
                     }
                     catch (Exception)
                     {
@@ -54,7 +56,16 @@ namespace TarrifComparison
                     Func<TarrifEntry, EnergyRate> CalculateEnergyRate = (tarrif) => new EnergyRate
                     {
                         Name = tarrif.tariff,
-                        Cost = ((((tarrif.rates.gas * gasUsage) + tarrif.standing_charge) * 12m) * (1m+Constants.VatPercent))
+                        Cost = 
+                            tarrif.rates.gas > 0
+                            ?
+                                ((tarrif.rates.gas * gasUsage)
+                                +
+                                (tarrif.rates.power * powerUsage)
+                                + tarrif.standing_charge * 12m)*(1m + Constants.VatPercent)
+                            :
+                                (((tarrif.rates.power * powerUsage)
+                                + tarrif.standing_charge * 12m)*(1m + Constants.VatPercent))
                     };
 
                     //use a combination of LINQ expressions, and the lambda expressions above to chain function calls
@@ -66,9 +77,10 @@ namespace TarrifComparison
                 case "usage":
                     var tarrifName = args[1];
                     var fuelType = args[2];
+                    decimal targetMonthlySpend;
                     try
                     {
-                        var targetMonthlySpend = decimal.Parse(args[3]);
+                        targetMonthlySpend = decimal.Parse(args[3]);
                     }
                     catch (Exception)
                     {
@@ -96,7 +108,7 @@ namespace TarrifComparison
             Console.WriteLine(string.IsNullOrEmpty(err) 
                 ? string.Empty 
                 : $"An error occured- {err}");
-            Environment.Exit(0);
+            Console.ReadLine();
         }
     }
 }

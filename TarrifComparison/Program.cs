@@ -18,7 +18,7 @@ namespace TarrifComparison
         }
 
         //pure function as it either returns "cost", "usage" or empty string
-        static Action<string[], List<TarrifEntry>, Action<List<string>>> GetCommandLogic(string[] args) 
+        static Action<string[], List<TarrifEntry>, Action<string>> GetCommandLogic(string[] args) 
         {
             return CommandLogic(args.FirstOrDefault(x => 
                 x == "cost" ||
@@ -26,7 +26,7 @@ namespace TarrifComparison
         }
 
         //Higher-order function, returns the appropriate function for the given command
-        static Action<string[], List<TarrifEntry>, Action<List<string>>> CommandLogic(string command) 
+        static Action<string[], List<TarrifEntry>, Action<string>> CommandLogic(string command) 
         {
             switch (command.ToLower())
             {
@@ -39,10 +39,15 @@ namespace TarrifComparison
             }
         }
 
-        static void Output(List<string> output)
+        //static void Output(List<string> output)
+        //{
+        //    output.ForEach(x => Console.WriteLine(x));
+        //    Environment.Exit(0);
+        //}
+
+        static void Output(string output)
         {
-            output.ForEach(x => Console.WriteLine(x));
-            Environment.Exit(0);
+            Console.WriteLine(output);
         }
 
         static void Exit(string message)

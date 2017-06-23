@@ -6,31 +6,20 @@ namespace TarrifComparison
 {
     public static class CostLogic
     {
-        private static int gas;
-        private static int power;
-        
-        //not a pure function as it accesses data which can vary results
-        public static void CalculateCost(string[] args, List<TarrifEntry> tarrifs, Action<List<string>> output)
+        public static void CalculateCost(string[] args, List<TarrifEntry> tarrifs, Action<string> output)
         {
-            int.TryParse(args[1], out power);
-            int.TryParse(args[2], out gas);
+            //In this instance I think its better to throw an exception due to a 
+            //bad argument, than to attempt to parse it and potentionaly generate some
+            //erroneous results. The calling function should probably protect against this
+            var power = decimal.Parse(args[1]);
+            var gas = decimal.Parse(args[2]);
 
-            //use LINQ functions to iterate our dataset and generate a new array of strings
-            //correctly formatted to display the result
-            var result = 
-                tarrifs.Select(x =>
-                    $"{x.tariff} £{SumGasAndPower(x, power, gas)}");
+            Func<decimal, string> formatCost = x => x.ToString("#.##");
+            Func<TarrifEntry, EnergyRate> calc = (tarrif) => new EnergyRate { Name = tarrif.tariff, Cost = tarrif.standing_charge * 12m + tarrif.rates.gas * gas };
 
-            output(result.ToList());
-        }
-
-        //Pure function
-        private static string SumGasAndPower(TarrifEntry tarrif, int power, int gas)
-        {
-            return (
-                ((power * tarrif.rates.power) + (gas * tarrif.rates.gas) + tarrif.standing_charge) 
-                    * Constants.VAT)
-                .ToString("#.##");
+            tarrifs.Select(t => 
+                calc(t)).OrderBy(o => o.Cost).ToList()
+                    .ForEach(e => output($"{e.Name}: £{formatCost(e.Cost)}"));
         }
     }
 }

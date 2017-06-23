@@ -21,7 +21,11 @@ namespace TarrifComparison
             //in a production system, this function should probably live somewhere
             //where it can be accessed more easily like a helper class or extension method, to avoid code duplication
             Func<decimal, string> formatCost = x => x.ToString("#.##");
-            Func<TarrifEntry, EnergyRate> calc = (tarrif) => new EnergyRate { Name = tarrif.tariff, Cost = tarrif.standing_charge * 12m + tarrif.rates.gas * gas };
+            Func<TarrifEntry, EnergyRate> calc = (tarrif) => new EnergyRate
+                {
+                    Name = tarrif.tariff,
+                    Cost = tarrif.standing_charge * 12m + tarrif.rates.gas * gas
+                };
 
             //use a combination of LINQ expressions, and the lambda expressions above to chain function calls
             //together to generate our output strings. Iterate over them using the ForEach extension and output to our output function

@@ -2,7 +2,7 @@
   "profiles": {
     "TarrifComparison": {
       "commandName": "Project",
-      "commandLineArgs": "usage better-energy gas 35"
+      "commandLineArgs": "cost 900 300"
     }
   }
 }

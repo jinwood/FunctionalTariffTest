@@ -13,11 +13,13 @@ namespace TarrifComparison
         static void Main(string[] args)
         {
             Console.OutputEncoding = System.Text.Encoding.UTF8;
-            var tariffs = Data.Load();
+            //the only non-pure function, does not affect any other functions due to its location
+            var tariffs = Data.Load(); 
+            //get commoand logic based off args, invoke, passing a function to handle output
             GetCommandLogic(args).Invoke(args, tariffs, Output);
         }
-
-        //pure function as it either returns "cost", "usage" or empty string
+        
+        //higher order function, calls another function depending on the first argument passed
         static Action<string[], List<TarrifEntry>, Action<string>> GetCommandLogic(string[] args) 
         {
             return CommandLogic(args.FirstOrDefault(x => 
@@ -39,25 +41,9 @@ namespace TarrifComparison
             }
         }
 
-        //static void Output(List<string> output)
-        //{
-        //    output.ForEach(x => Console.WriteLine(x));
-        //    Environment.Exit(0);
-        //}
-
         static void Output(string output)
         {
             Console.WriteLine(output);
-        }
-
-        static void Exit(string message)
-        {
-            Console.WriteLine(
-                string.IsNullOrEmpty(message)
-                    ? "Exiting application"
-                    : $"Exiting application - {message}");
-
-            Environment.Exit(0);
         }
     }
 }

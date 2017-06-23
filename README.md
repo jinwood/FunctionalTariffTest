@@ -1,6 +1,6 @@
 ## Instructions to run
 
-### OSX, Linux & Windows
+### MacOS, Linux & Windows
 
 Clone the repo
 

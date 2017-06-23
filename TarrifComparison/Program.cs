@@ -19,53 +19,69 @@ namespace TarrifComparison
             var tariffs = Data.Load();
             //get commoand logic based off args, invoke, passing a function to handle output
             var command = GetCommand(args);
+            if (command == null) Exit("Invalid command argument provided");
             command(tariffs, Console.WriteLine);
+            Exit("");
         }
         
-        //higher order function, calls another function depending on the first argument passed
 
         //Higher-order function, returns the appropriate function for the given command
         static Action<List<TarrifEntry>, Action<string>> GetCommand(string[] args) 
         {
-            Func<decimal, string> formatCost = x => x.ToString("£#.##");
+            //declare outside of the function declarations below so it is accessible by
+            //both cost and usage functions
+            Func<decimal, string> format2DP = x => x.ToString("#.##");
 
             string command = args[0].ToLower();
             switch (command)
             {
                 case "cost":
+                    //In this instance, I think it's worth throwing an exception over any other alternative
+                    //ie C# has a TryParse method which returns either a value if successful, or 0 if not
+                    //I feel falling back to 0 would potentially muddy results.
                     var powerUsage = decimal.Parse(args[1]);
                     var gasUsage = decimal.Parse(args[2]);
 
-                    Func<TarrifEntry, EnergyRate> calc = (tarrif) => new EnergyRate
+                    //lambda function to handle cost calculation, stored temporarily in an EnergyRate type
+                    Func<TarrifEntry, EnergyRate> CalculateEnergyRate = (tarrif) => new EnergyRate
                     {
                         Name = tarrif.tariff,
-                        Cost = tarrif.standing_charge * 12m + tarrif.rates.gas * gasUsage * (1m+Constants.VatPercent)
+                        Cost = ((((tarrif.rates.gas * gasUsage) + tarrif.standing_charge) * 12m) * (1m+Constants.VatPercent))
                     };
 
                     //use a combination of LINQ expressions, and the lambda expressions above to chain function calls
                     //together to generate our output strings. Iterate over them using the ForEach extension and output to our output function
-                    return (tarrifs, output) => tarrifs.Select(calc)
+                    return (tarrifs, output) => tarrifs.Select(CalculateEnergyRate)
                                                        .OrderBy(x => x.Cost)
                                                        .ToList()
-                                                       .ForEach(x => output($"{x.Name}: {formatCost(x.Cost)}"));
+                                                       .ForEach(x => output($"{x.Name}: £{format2DP(x.Cost)}"));
                 case "usage":
                     var tarrifName = args[1];
                     var fuelType = args[2];
                     var targetMonthlySpend = decimal.Parse(args[3]);
 
-                    Func<TarrifEntry, decimal> calculateSpend =
+                    Func<TarrifEntry, decimal> CalculateAnnualSpend =
                         (tarrif) => (targetMonthlySpend / (fuelType == "gas" ? tarrif.rates.gas : tarrif.rates.power)
                                     + tarrif.standing_charge) * 12 * (1m+Constants.VatPercent);
                     
                     return (tarrifs, output) => 
+                            output(
                                 tarrifs.Where(x =>
                                     x.tariff == tarrifName)
-                                        .Select(y => $"ANNUAL_{fuelType.ToUpper()}_USAGE {formatCost(calculateSpend(y))} KW/h")
+                                        .Select(y => $"ANNUAL_{fuelType.ToUpper()}_USAGE {format2DP(CalculateAnnualSpend(y))} KW/h")
                                         .FirstOrDefault()
-                                        .ToString();
+                                        .ToString());
                 default:
+                    //I'm aware that null is bad in functional programming, but unsure how best to handle a situation like this
                     return null;
             }
+        }
+        static void Exit(string err)
+        {
+            Console.WriteLine(string.IsNullOrEmpty(err) 
+                ? string.Empty 
+                : $"An error occured- {err}");
+            Environment.Exit(0);
         }
     }
 }
